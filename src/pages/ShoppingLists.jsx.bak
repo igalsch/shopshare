@@ -1,0 +1,335 @@
+import React, { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { Plus, ShoppingCart, Loader2, Pencil, Calendar, Users, Package, Trash2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import AppLayout from "@/components/layout/AppLayout"
+
+// Helper function to check if localStorage is available
+const isLocalStorageAvailable = () => {
+  try {
+    const testKey = '__test__';
+    localStorage.setItem(testKey, testKey);
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    console.error('localStorage is not available:', e);
+    return false;
+  }
+};
+
+const ShoppingLists = () => {
+  const navigate = useNavigate()
+  const localStorageAvailable = isLocalStorageAvailable();
+  
+  // Mock data for demonstration
+  const mockLists = [
+    {
+      id: 1,
+      name: "קניות שבועיות",
+      description: "מצרכים חיוניים לשבוע",
+      items: 12,
+      sharedWith: ["יוחנן", "יעל"],
+      lastUpdated: "לפני שעתיים",
+      status: "active",
+      date: "חמישי, 13/03/2025",
+    },
+    {
+      id: 2,
+      name: "ציוד למסיבה",
+      description: "פריטים למסיבת סוף השבוע",
+      items: 8,
+      sharedWith: ["אלה"],
+      lastUpdated: "לפני יום",
+      status: "completed",
+      date: "רביעי, 12/03/2025",
+    },
+  ]
+
+  const [isLoading, setIsLoading] = useState(false)
+  const [activeTab, setActiveTab] = useState("all")
+  const [lists, setLists] = useState(() => {
+    if (!localStorageAvailable) {
+      console.warn('localStorage not available, using mock data');
+      return mockLists;
+    }
+    
+    try {
+      const savedLists = localStorage.getItem('shoppingLists');
+      console.log('Initial load - data from localStorage:', savedLists);
+      
+      if (savedLists && savedLists !== 'undefined' && savedLists !== 'null') {
+        const parsedLists = JSON.parse(savedLists);
+        if (Array.isArray(parsedLists) && parsedLists.length > 0) {
+          console.log('Using saved lists from localStorage:', parsedLists);
+          return parsedLists;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading initial lists from localStorage:', error);
+    }
+    
+    console.log('No valid saved lists found, using mock data');
+    return mockLists;
+  })
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newListName, setNewListName] = useState("")
+
+  // Log localStorage status on mount
+  useEffect(() => {
+    console.log('localStorage available:', localStorageAvailable);
+    if (localStorageAvailable) {
+      console.log('Current localStorage content:', localStorage.getItem('shoppingLists'));
+    }
+  }, [localStorageAvailable]);
+
+  // Save lists to localStorage whenever they change
+  useEffect(() => {
+    if (!localStorageAvailable) {
+      console.warn('localStorage not available, changes will not persist');
+      return;
+    }
+    
+    try {
+      console.log('Saving lists to localStorage:', lists);
+      localStorage.setItem('shoppingLists', JSON.stringify(lists));
+      
+      // Verify the save worked
+      const savedData = localStorage.getItem('shoppingLists');
+      console.log('Verification - data in localStorage after save:', savedData);
+    } catch (error) {
+      console.error('Error saving lists to localStorage:', error);
+    }
+  }, [lists, localStorageAvailable]);
+
+  const handleCreateList = () => {
+    if (!newListName.trim()) return
+    
+    setIsLoading(true)
+    // Simulate API call
+    setTimeout(() => {
+      try {
+        const newList = {
+          id: Date.now(), // Use timestamp for unique ID
+          name: newListName,
+          description: "רשימת קניות חדשה",
+          items: 0,
+          sharedWith: [],
+          lastUpdated: "זה עתה",
+          status: "active",
+          date: new Date().toLocaleDateString('he-IL', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' }),
+        }
+        
+        // Update state with the new list
+        const updatedLists = [newList, ...lists]
+        setLists(updatedLists)
+        
+        // Manually save to localStorage as a backup
+        localStorage.setItem('shoppingLists', JSON.stringify(updatedLists))
+        
+        console.log('List created and saved:', newList)
+        console.log('Updated lists:', updatedLists)
+        
+        setNewListName("")
+        setIsCreateDialogOpen(false)
+      } catch (error) {
+        console.error('Error creating list:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }, 1000)
+  }
+
+  const handleDeleteList = (id) => {
+    try {
+      const updatedLists = lists.filter(list => list.id !== id)
+      setLists(updatedLists)
+      
+      // Manually save to localStorage as a backup
+      localStorage.setItem('shoppingLists', JSON.stringify(updatedLists))
+      console.log('List deleted, updated lists:', updatedLists)
+    } catch (error) {
+      console.error('Error deleting list:', error)
+    }
+  }
+
+  const handleEditList = (id) => {
+    navigate(`/edit-list/${id}`)
+  }
+
+  const handleContinueShopping = (id) => {
+    navigate(`/list-detail/${id}`)
+  }
+
+  // Filter lists based on active tab
+  const filteredLists = lists.filter(list => {
+    if (activeTab === "all") return true;
+    return list.status === activeTab;
+  });
+
+  return (
+    <AppLayout>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">רשימות הקניות שלי</h2>
+            <p className="text-slate-400">נהל את רשימות הקניות שלך ושתף אותן עם אחרים</p>
+          </div>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600">
+                <Plus className="ml-2 h-4 w-4" />
+                רשימה חדשה
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-slate-900 border-slate-800 text-white rtl">
+              <DialogHeader>
+                <DialogTitle>צור רשימה חדשה</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">שם הרשימה</Label>
+                  <Input
+                    id="name"
+                    placeholder="הכנס שם לרשימה"
+                    value={newListName}
+                    onChange={(e) => setNewListName(e.target.value)}
+                    className="bg-slate-800 border-slate-700"
+                  />
+                </div>
+              </div>
+              <div className="flex justify-start space-x-reverse space-x-2">
+                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} className="border-slate-700">
+                  ביטול
+                </Button>
+                <Button onClick={handleCreateList} disabled={isLoading || !newListName.trim()} className="bg-emerald-500 hover:bg-emerald-600">
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+                      יוצר...
+                    </>
+                  ) : (
+                    "צור רשימה"
+                  )}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        {/* Filters */}
+        <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="bg-slate-800 border border-slate-700 w-full sm:w-auto">
+            <TabsTrigger value="all" className="flex-1 sm:flex-none">הכל</TabsTrigger>
+            <TabsTrigger value="active" className="relative flex-1 sm:flex-none">
+              פעיל
+              <Badge className="absolute -top-2 -right-2 bg-emerald-500">
+                {lists.filter(list => list.status === 'active').length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="completed" className="flex-1 sm:flex-none">הושלם</TabsTrigger>
+            <TabsTrigger value="archived" className="flex-1 sm:flex-none">בארכיון</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* Main Content */}
+        {filteredLists.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 bg-slate-800/50 rounded-lg border border-slate-700">
+            <ShoppingCart className="h-12 w-12 text-slate-400 mb-4" />
+            <h3 className="text-lg font-semibold mb-2">
+              {activeTab === "all" ? "אין עדיין רשימות" : `אין רשימות ב${activeTab === "active" ? "פעילות" : activeTab === "completed" ? "הושלמו" : "ארכיון"}`}
+            </h3>
+            <p className="text-slate-400 text-center mb-4">
+              {activeTab === "all" ? "צור את רשימת הקניות הראשונה שלך כדי להתחיל" : "נסה לסנן לפי קטגוריה אחרת"}
+            </p>
+            {activeTab === "all" && (
+              <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-emerald-500 hover:bg-emerald-600">
+                <Plus className="ml-2 h-4 w-4" />
+                צור רשימה
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {filteredLists.map((list) => (
+              <Card key={list.id} className="bg-slate-800/50 border-slate-700 hover:border-slate-600 transition-colors group">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="group-hover:text-emerald-400 transition-colors">{list.name}</CardTitle>
+                      <CardDescription className="text-slate-400">{list.description}</CardDescription>
+                    </div>
+                    <Badge variant={list.status === 'active' ? 'default' : 'secondary'} className={list.status === 'active' ? 'bg-emerald-500' : ''}>
+                      {list.status === 'active' ? 'פעיל' : 'הושלם'}
+                    </Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center text-sm text-slate-400">
+                      <Calendar className="h-4 w-4 ml-2" />
+                      <span>{list.date}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-slate-400">
+                      <Package className="h-4 w-4 ml-2" />
+                      <span>{list.items} פריטים</span>
+                    </div>
+                    {list.sharedWith.length > 0 && (
+                      <div className="flex items-center space-x-reverse space-x-2">
+                        <Users className="h-4 w-4 text-slate-400" />
+                        <span className="text-sm text-slate-400">משותף עם:</span>
+                        <div className="flex -space-x-reverse -space-x-2">
+                          {list.sharedWith.map((user, index) => (
+                            <Avatar key={index} className="h-6 w-6 border-2 border-slate-800">
+                              <AvatarFallback>{user[0]}</AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end space-x-reverse space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-slate-600 hover:bg-red-900/20 hover:text-red-400 hover:border-red-800"
+                    onClick={() => handleDeleteList(list.id)}
+                  >
+                    <Trash2 className="h-4 w-4 ml-1" />
+                    מחק
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-slate-600"
+                    onClick={() => handleEditList(list.id)}
+                  >
+                    <Pencil className="h-4 w-4 ml-1" />
+                    ערוך
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="bg-emerald-500 hover:bg-emerald-600"
+                    onClick={() => handleContinueShopping(list.id)}
+                  >
+                    המשך קניות
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </AppLayout>
+  )
+}
+
+export default ShoppingLists 
