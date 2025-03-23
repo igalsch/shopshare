@@ -86,7 +86,7 @@ const ShoppingLists = () => {
   // Add user state
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState("all")
+  const [activeTab, setActiveTab] = useState("active")
   const [lists, setLists] = useState(() => {
     if (!localStorageAvailable) {
       console.warn('localStorage not available, using mock data');
@@ -693,7 +693,7 @@ const ShoppingLists = () => {
         )}
 
         {/* Filters */}
-        <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
+        <Tabs defaultValue="active" className="w-full" onValueChange={setActiveTab}>
           <TabsList className="bg-slate-800 border border-slate-700 w-full sm:w-auto">
             <TabsTrigger value="all" className="flex-1 sm:flex-none">הכל</TabsTrigger>
             <TabsTrigger value="active" className="relative flex-1 sm:flex-none">
@@ -755,4 +755,4 @@ const ShoppingLists = () => {
   )
 }
 
-export default ShoppingLists 
+export default ShoppingLists
