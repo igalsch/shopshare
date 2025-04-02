@@ -230,10 +230,25 @@ const ListDetail = () => {
       
       setItems(prev => [...prev, enrichedItem])
       
-      toast({
-        title: "הפריט נוסף בהצלחה",
-        description: `${product.name} נוסף לרשימה`,
-      })
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = `${product.name} נוסף`
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: "הפריט נוסף בהצלחה",
+          description: `${product.name} נוסף לרשימה`,
+        })
+      }
     } catch (error) {
       console.error('Error adding item:', error)
       toast({
@@ -280,10 +295,25 @@ const ListDetail = () => {
       
       setItems(prev => prev.filter(i => i.id !== itemId))
       
-      toast({
-        title: "הפריט הוסר בהצלחה",
-        description: "הפריט הוסר מהרשימה",
-      })
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = `${item.product?.name || 'פריט'} הוסר`
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: "הפריט הוסר בהצלחה",
+          description: "הפריט הוסר מהרשימה",
+        })
+      }
     } catch (error) {
       console.error('Error removing item:', error)
       toast({
@@ -355,21 +385,51 @@ const ListDetail = () => {
         await handleAddItem(newProduct.id, 1, newProduct)
       }
       
-      toast({
-        title: existingItem ? "המוצר עודכן בהצלחה" : "המוצר נוצר בהצלחה",
-        description: existingItem 
-          ? `${newProduct.name} עודכן ברשימה`
-          : `${newProduct.name} נוסף למוצרים ולרשימה`,
-      })
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = `${newProduct.name} נוצר`
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: existingItem ? "המוצר עודכן בהצלחה" : "המוצר נוצר בהצלחה",
+          description: existingItem 
+            ? `${newProduct.name} עודכן ברשימה`
+            : `${newProduct.name} נוסף למוצרים ולרשימה`,
+        })
+      }
 
       return newProduct
     } catch (error) {
       console.error('Error creating/updating product:', error)
-      toast({
-        title: "שגיאה בפעולת המוצר",
-        description: error.message,
-        variant: "destructive",
-      })
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = "שגיאה בפעולת המוצר"
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: "שגיאה בפעולת המוצר",
+          description: error.message,
+          variant: "destructive",
+        })
+      }
       throw error
     }
   }
@@ -400,17 +460,35 @@ const ListDetail = () => {
     if (createdProducts.length > 0) {
       setNewProductBatch("")
       setNewProductDialogOpen(false)
+      
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = `${createdProducts.length} מוצרים נוצרו`
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: "המוצרים נוצרו בהצלחה",
+          description: `${createdProducts.length} מוצרים חדשים נוספו למאגר`,
+        })
+      }
     }
   }
 
   // Add this function to handle category selection
   const handleCategorySelect = (value) => {
     setNewProductForm(prev => ({ ...prev, category: value }))
-    setCategoryInput(value)
     setOpenCategorySelect(false)
   }
 
-  // Add this function to get filtered categories
   const getFilteredCategories = () => {
     const allCategories = [...new Set([...categoryList, categoryInput])].filter(Boolean)
     if (categoryInput) {
@@ -440,10 +518,25 @@ const ListDetail = () => {
       const updatedList = { ...list, status: 'completed' };
       await listService.updateList(updatedList);
       
-      toast({
-        title: "הרשימה הושלמה בהצלחה",
-        description: "הרשימה עברה למצב 'הושלם'",
-      });
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-emerald-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = "הרשימה הושלמה"
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: "הרשימה הושלמה בהצלחה",
+          description: "הרשימה עברה למצב 'הושלם'",
+        });
+      }
       
       // Update local state
       setList(updatedList);
@@ -453,11 +546,26 @@ const ListDetail = () => {
       navigate('/');
     } catch (error) {
       console.error('Error completing list:', error);
-      toast({
-        title: "שגיאה בהשלמת הרשימה",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Use a more subtle notification for mobile
+      if (window.innerWidth <= 768) {
+        // For mobile, use a more subtle notification
+        const notification = document.createElement('div')
+        notification.className = 'fixed bottom-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in-out'
+        notification.textContent = "שגיאה בהשלמת הרשימה"
+        document.body.appendChild(notification)
+        
+        // Remove the notification after 2 seconds
+        setTimeout(() => {
+          notification.remove()
+        }, 2000)
+      } else {
+        // For desktop, use the regular toast
+        toast({
+          title: "שגיאה בהשלמת הרשימה",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -791,7 +899,7 @@ const ListDetail = () => {
               <TabsContent value="single" className="mt-4">
                 <div className="grid gap-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">שם המוצר</Label>
+                    <Label htmlFor="name" className="text-slate-100">שם המוצר</Label>
                     <Input
                       id="name"
                       value={newProductForm.name}
@@ -801,42 +909,42 @@ const ListDetail = () => {
                   </div>
 
                   <div className="grid gap-2">
-                    <Label>קטגוריה</Label>
-                    <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={openCategorySelect}
-                          className="justify-between bg-slate-800 border-slate-700 text-right text-slate-100 hover:bg-slate-700 hover:text-slate-100"
-                        >
-                          {newProductForm.category || "בחר או הוסף קטגוריה"}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0 bg-slate-800 border-slate-700">
-                        <Command className="bg-slate-800">
-                          <CommandInput
-                            placeholder="חפש או הוסף קטגוריה"
-                            value={categoryInput}
-                            onValueChange={setCategoryInput}
-                            className="h-9 text-slate-100 placeholder:text-slate-400"
-                          />
-                          <CommandEmpty className="text-slate-400">הקלד כדי להוסיף קטגוריה חדשה</CommandEmpty>
-                          <CommandGroup className="text-slate-100">
-                            {getFilteredCategories().map((category) => (
-                              <CommandItem
-                                key={category}
-                                value={category}
-                                onSelect={handleCategorySelect}
-                                className="text-right cursor-pointer text-slate-100 hover:bg-slate-700 hover:text-slate-100 aria-selected:bg-slate-700"
-                              >
-                                {category}
-                              </CommandItem>
-                            ))}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                    <Label className="text-slate-100">קטגוריה</Label>
+                    <Select
+                      value={newProductForm.category}
+                      onValueChange={(value) => setNewProductForm(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger className="bg-slate-800 border-slate-700 text-slate-100">
+                        <SelectValue placeholder="בחר או הוסף קטגוריה" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        <SelectItem value="uncategorized" className="text-slate-100 hover:text-slate-100">ללא קטגוריה</SelectItem>
+                        {categoryList.map((category) => (
+                          <SelectItem key={category} value={category} className="text-slate-100 hover:text-slate-100">
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="הוסף קטגוריה חדשה"
+                        value={categoryInput}
+                        onChange={(e) => setCategoryInput(e.target.value)}
+                        className="bg-slate-800 border-slate-700 text-slate-100"
+                      />
+                      <Button
+                        onClick={() => {
+                          if (categoryInput) {
+                            setNewProductForm(prev => ({ ...prev, category: categoryInput }))
+                            setCategoryInput("")
+                          }
+                        }}
+                        className="bg-emerald-500 hover:bg-emerald-600"
+                      >
+                        הוסף
+                      </Button>
+                    </div>
                   </div>
                 </div>
 
@@ -924,9 +1032,9 @@ const ListDetail = () => {
                       <SelectValue placeholder="קטגוריה" />
                     </SelectTrigger>
                     <SelectContent className="bg-slate-800 border-slate-700">
-                      <SelectItem value="הכל">כל הקטגוריות</SelectItem>
+                      <SelectItem value="הכל" className="text-slate-100 hover:text-slate-100">כל הקטגוריות</SelectItem>
                       {categoryList.map((category) => (
-                        <SelectItem key={category} value={category}>
+                        <SelectItem key={category} value={category} className="text-slate-100 hover:text-slate-100">
                           {category}
                         </SelectItem>
                       ))}
@@ -948,71 +1056,97 @@ const ListDetail = () => {
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2">
-                {getFilteredProducts().map(product => {
-                  const isInList = items.some(item => item.product_id === product.id);
-                  const listItem = items.find(item => item.product_id === product.id);
-                  
-                  return (
-                    <div 
-                      key={product.id}
-                      className={`group relative bg-slate-800/50 rounded-lg border border-slate-700 p-2 sm:p-3
-                        hover:bg-slate-800 transition-all hover:shadow-lg hover:border-slate-600
-                        ${isInList ? "ring-2 ring-emerald-500/50" : ""}`}
-                    >
-                      {/* Product Name */}
-                      <div className="text-xs sm:text-sm font-medium text-slate-100 mb-1 sm:mb-2 truncate" title={product.name}>
-                        {product.name}
-                      </div>
-
-                      {/* Category Badge */}
-                      <div className="mb-2">
-                        <Badge 
-                          variant="secondary" 
-                          className="text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 sm:py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-100 truncate max-w-full"
-                          title={product.category}
-                        >
-                          {product.category}
-                        </Badge>
-                      </div>
-
-                      {/* Quantity Controls */}
-                      <div className="mt-auto">
-                        {isInList ? (
-                          <div className="flex items-center justify-center gap-1 sm:gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-slate-600"
-                              onClick={() => handleUpdateQuantity(listItem.id, listItem.quantity - 1)}
-                            >
-                              <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
-                            <span className="text-xs sm:text-sm font-medium w-6 sm:w-8 text-center text-slate-100">
-                              {listItem.quantity}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-slate-600"
-                              onClick={() => handleUpdateQuantity(listItem.id, listItem.quantity + 1)}
-                            >
-                              <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <Button
-                            onClick={() => handleAddItem(product.id, 1)}
-                            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-7 text-xs"
-                            size="sm"
-                          >
-                            <Plus className="h-3 w-3 mr-1" />
-                            הוסף
-                          </Button>
-                        )}
+                {getFilteredProducts().length === 0 ? (
+                  <div 
+                    className="col-span-full group relative bg-slate-800/50 rounded-lg border border-slate-700 p-3 hover:bg-slate-800 transition-all hover:shadow-lg hover:border-slate-600 cursor-pointer"
+                    onClick={() => {
+                      setNewProductForm({
+                        name: searchQuery,
+                        category: selectedCategory === "הכל" ? "" : selectedCategory
+                      })
+                      setIsDialogOpen(false)
+                      setNewProductDialogOpen(true)
+                    }}
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Plus className="h-4 w-4 text-emerald-500" />
+                      <div className="text-center">
+                        <div className="text-sm font-medium text-slate-100">
+                          צור מוצר חדש
+                        </div>
+                        <div className="text-xs text-slate-400">
+                          {searchQuery ? `"${searchQuery}"` : "מוצר חדש"}
+                        </div>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ) : (
+                  getFilteredProducts().map(product => {
+                    const isInList = items.some(item => item.product_id === product.id);
+                    const listItem = items.find(item => item.product_id === product.id);
+                    
+                    return (
+                      <div 
+                        key={product.id}
+                        className={`group relative bg-slate-800/50 rounded-lg border border-slate-700 p-2 sm:p-3
+                          hover:bg-slate-800 transition-all hover:shadow-lg hover:border-slate-600
+                          ${isInList ? "ring-2 ring-emerald-500/50" : ""}`}
+                      >
+                        {/* Product Name */}
+                        <div className="text-xs sm:text-sm font-medium text-slate-100 mb-1 sm:mb-2 truncate" title={product.name}>
+                          {product.name}
+                        </div>
+
+                        {/* Category Badge */}
+                        <div className="mb-2">
+                          <Badge 
+                            variant="secondary" 
+                            className="text-[10px] sm:text-xs px-1.5 py-0 sm:px-2 sm:py-0.5 bg-slate-700 hover:bg-slate-600 text-slate-100 truncate max-w-full"
+                            title={product.category}
+                          >
+                            {product.category}
+                          </Badge>
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="mt-auto">
+                          {isInList ? (
+                            <div className="flex items-center justify-center gap-1 sm:gap-2">
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-slate-600"
+                                onClick={() => handleUpdateQuantity(listItem.id, listItem.quantity - 1)}
+                              >
+                                <Minus className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                              <span className="text-xs sm:text-sm font-medium w-6 sm:w-8 text-center text-slate-100">
+                                {listItem.quantity}
+                              </span>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 w-7 sm:h-8 sm:w-8 p-0 border-slate-600"
+                                onClick={() => handleUpdateQuantity(listItem.id, listItem.quantity + 1)}
+                              >
+                                <Plus className="h-3 w-3 sm:h-4 sm:w-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <Button
+                              onClick={() => handleAddItem(product.id, 1)}
+                              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white h-7 text-xs"
+                              size="sm"
+                            >
+                              <Plus className="h-3 w-3 mr-1" />
+                              הוסף
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
           </DialogContent>
