@@ -141,8 +141,8 @@ const AppLayout = ({ children }) => {
       )}
 
       {/* Bottom Navigation for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900 border-t border-slate-800 lg:hidden">
-        <nav className="flex justify-around">
+      <div className="fixed bottom-0 left-0 right-0 z-[100] bg-slate-900/95 backdrop-blur-sm border-t border-slate-800 lg:hidden">
+        <nav className="flex justify-around py-2">
           <Button
             variant="ghost"
             size="icon"
@@ -164,15 +164,15 @@ const AppLayout = ({ children }) => {
               )}
               onClick={() => handleNavigate(item.href)}
             >
-              <item.icon className="h-5 w-5" />
-              <span className="text-xs">{item.name}</span>
+              <item.icon className="h-6 w-6" />
+              <span className="text-xs font-medium">{item.name}</span>
             </Button>
           ))}
         </nav>
       </div>
 
       {/* Main Content */}
-      <main className="pb-20 lg:pb-10 lg:pr-72">
+      <main className="pb-24 lg:pb-10 lg:pr-72">
         <div className="container mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-6">
           {children}
         </div>
