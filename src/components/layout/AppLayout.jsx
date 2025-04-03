@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import {
   Package,
   ShoppingCart,
-  History,
+  DollarSign,
   Menu,
   X,
   LogOut
@@ -24,9 +24,9 @@ const navigation = [
     icon: Package,
   },
   {
-    name: "היסטוריה",
-    href: "/history",
-    icon: History,
+    name: "מחירים",
+    href: "/prices",
+    icon: DollarSign,
   },
 ]
 

@@ -11,6 +11,7 @@ import CreateList from "@/pages/CreateList";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import { Toaster } from "@/components/ui/toaster";
+import Prices from "@/pages/Prices";
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -103,6 +104,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Products />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/prices"
+          element={
+            <ProtectedRoute>
+              <Prices />
             </ProtectedRoute>
           }
         />
